@@ -6,6 +6,12 @@ namespace JsonParser.Tests;
 public static class Utility
 {
     public static Tokenizer GetTokenizer(string js) => new(new StringReader(js));
+    public static Token NextToke(string js)
+    {
+        using var tok = GetTokenizer(js);
+        return tok.AdvanceAndGetNext();
+    }
+    public static Token<T> NextToke<T>(string js) => NextToke(js) as Token<T>;
     public static Parser GetParser(string js) => new(GetTokenizer(js));
     public static Element Parse(string js)
     {

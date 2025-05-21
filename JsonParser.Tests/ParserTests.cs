@@ -1,4 +1,6 @@
-﻿namespace JsonParser.Tests;
+﻿using JsonParser.Core;
+
+namespace JsonParser.Tests;
 
 public class TestParser
 {
@@ -58,5 +60,15 @@ public class TestParser
 """;
 
         Assert.Equal(expected, actual);
+    }
+
+    [Fact]
+    public void Parse_UnterminatedList_Breaks()
+    {
+        string src = "[1,2,3";
+        var ex = Assert.Throws<ParserException>(() => Utility.Print(src));
+        Assert.StartsWith("Expected a token of type RightBracket but got Token", ex.Message);
+        Assert.Equal(1, ex.Token.Line);
+        Assert.Equal(7, ex.Token.Column);
     }
 }

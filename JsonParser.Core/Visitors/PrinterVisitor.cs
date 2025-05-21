@@ -18,7 +18,22 @@ public class PrinterVisitor(TextWriter writer) : IVisitor
     {
         _identation = _identation[..^Padding.Length];
     }
+    private void PrintText(string s)
+    {
+        s = s
+            .Replace("\"", "\\\"")
+            .Replace("\\", @"\")
+            .Replace("/", @"\/")
+            .Replace("\b", @"\b")
+            .Replace("\f", @"f")
+            .Replace("\n", @"\n")
+            .Replace("\r", @"\r")
+            .Replace("\t", @"\t");
 
+        writer.Write('"');
+        _writer.Write(s);
+        _writer.Write('"');
+    }
     public void Visit(ConstantElement e)
     {
         switch (e.Value)
@@ -30,9 +45,7 @@ public class PrinterVisitor(TextWriter writer) : IVisitor
                 _writer.Write(td.Value.ToString().ToLowerInvariant());
                 break;
             case Token<string> td:
-                _writer.Write('"');
-                _writer.Write(td.Value);
-                _writer.Write('"');
+                PrintText(td.Value);
                 break;
             case { Type: TokenType.Nil }:
                 _writer.Write("null");
@@ -62,9 +75,8 @@ public class PrinterVisitor(TextWriter writer) : IVisitor
 
     public void Visit(MemberElement e)
     {
-        _writer.Write('"');
-        _writer.Write(e.Name.Value);
-        _writer.Write("\": ");
+        PrintText(e.Name.Value);
+        _writer.Write(": ");
         e.Value.Accept(this);
     }
 

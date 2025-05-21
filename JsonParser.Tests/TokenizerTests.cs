@@ -21,4 +21,26 @@ public class TokenizerTests
     {
         Assert.ThrowsAny<TokenizerException>(() => Utility.Parse(js));
     }
+
+    [Theory]
+    [InlineData("\\b", "\b")]
+    [InlineData("\\n", "\n")]
+    [InlineData("\\\"", "\"")]
+    [InlineData("\\\\", @"\")]
+    [InlineData("\\/", "/")]
+    [InlineData("\\u0042", "B")]
+    public void Advance_EscapeSequence_ParsedRight(string js, string txt)
+    {
+        var actual = Utility.NextToke<string>($"\"{js}\"");
+        Assert.Equal(txt, actual.Value);
+    }
+
+    [Fact]
+    public void Advance_StringWithControlChar_Breaks()
+    {
+        var js = "\"a\nb\n\n\nc\"";
+        var ex = Assert.Throws<TokenizerException>(() => Utility.NextToke(js));
+        Assert.Contains("Encountered an unexpected value", ex.Message);
+        Assert.Contains(" while trying to parse a string starting at (1, 1)", ex.Message);
+    }
 }
